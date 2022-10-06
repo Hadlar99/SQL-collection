@@ -1,0 +1,140 @@
+/*1.	Add the following new columns to the employees table: 
+•	Salary (INT)  
+•	ManagerID (INT) NOT NULL 
+•	DepartmentID (INT) NOT NULL*/
+
+ALTER TABLE Employees
+ADD Salary int;
+
+ALTER TABLE Employees
+ADD ManagerID int NOT NULL DEFAULT "0";
+
+ALTER TABLE Employees
+ADD DepartmentID int NOT NULL DEFAULT "0";
+ 
+/*2.	Insert the values from the table for each column. The values must be inserted for the right ID as shown in the table.  
+EmployeeID 	Salary 	ManagerID 	DepartmentID 
+1 	6900 	14 	40 
+2 	2200 	13 	30 
+3 	7100 	11 	10 
+4 	3500 	15 	20 
+5 	6900 	12 	50 
+6 	3100 	14 	40 
+7 	4500 	11 	10 
+8 	4200 	15 	20 
+9 	6000 	12 	50 
+10 	1500 	12 	50 */
+ 
+update Employees set Salary = 6900, ManagerID = 14, DepartmentID = 40 WHERE EmployeeID = 1
+update Employees set Salary = 2200, ManagerID = 13, DepartmentID = 30 WHERE EmployeeID = 2
+update Employees set Salary = 7100, ManagerID = 11, DepartmentID = 10 WHERE EmployeeID = 3
+update Employees set Salary = 3500, ManagerID = 15, DepartmentID = 20 WHERE EmployeeID = 4
+update Employees set Salary = 6900, ManagerID = 12, DepartmentID = 50 WHERE EmployeeID = 5
+update Employees set Salary = 3100, ManagerID = 14, DepartmentID = 40 WHERE EmployeeID = 6
+update Employees set Salary = 4500, ManagerID = 11, DepartmentID = 10 WHERE EmployeeID = 7
+update Employees set Salary = 4200, ManagerID = 15, DepartmentID = 20 WHERE EmployeeID = 8
+update Employees set Salary = 6000, ManagerID = 12, DepartmentID = 50 WHERE EmployeeID = 9
+update Employees set Salary = 1500, ManagerID = 12, DepartmentID = 50 WHERE EmployeeID = 10
+
+/*3.	Create a new table and call it departments and add the following columns to the table: 
+•	DepartmentID (INT) NOT NULL and Primary Key 
+•	ManagerID (INT) NOT NULL 
+•	DepartmentName CHAR(25) */
+
+CREATE TABLE departments
+(
+DepartmentID int not null,
+ManagerID int NOT NULL, 
+DepartmentName CHAR(25), 
+PRIMARY KEY (DepartmentID)
+)
+ 
+/*4.	Insert values in the table below to the new table. You should insert all the values with one single query.   
+DepartmentName 	DepartmentID 	ManagerID 
+Administration 	10 	11 
+Shipping 	20 	12 
+Purchasing 	30 	13 
+Sales 	40 	14 
+IT support 	50 	15 */
+
+ INSERT INTO departments (DepartmentName, DepartmentID, ManagerID) values 
+('Administration', 10, 11), 
+('Shipping', 20, 12), 
+('Purchasing', 30, 13), 
+('Sales', 40, 14), 
+('IT support ', 50, 15)
+
+/*5.	Write a SQL query to find all those employees who work in the Shipping department. Return DepartmentID, FirstName, and DepartmentName.*/ 
+
+SELECT departments.DepartmentID, DepartmentName, FirstName FROM Employees, departments
+Where Employees.DepartmentID = departments.DepartmentID
+and departments.DepartmentName = 'Shipping'
+ 
+/*6.	Write a SQL query to find those employees whose ID matches any of the number 2, 5 and 9. Return all fields in the table.*/ 
+
+SELECT * FROM [Employees]
+WHERE EmployeeID = 2 or EmployeeID = 5 or EmployeeID = 9
+
+/*7.	Show those employees who earn more than the average salary and work in a department with any 
+employee whose first name contains the letter 'R'. Return EmployeeID, FirstName and Salary. */
+
+SELECT EmployeeID, FirstName, Salary FROM [Employees]
+		left join departments
+        Where Employees.DepartmentID = departments.DepartmentID
+		and Salary > (SELECT AVG(Salary) from Employees)
+		and departments.DepartmentName in (Select distinct departments.DepartmentName from Employees
+		left join departments
+        Where Employees.DepartmentID = departments.DepartmentID
+		and FirstName LIKE '%r%') 
+    
+/*8.	Write a query to find total salary for those departments where at least one employee works. Return DepartmentID and total_salary.*/
+
+SELECT DepartmentName , SUM(Salary) as TOTAL_SALARY  FROM [Employees] 
+LEFT JOIN departments
+on Employees.DepartmentID =departments.DepartmentID
+Group by DepartmentName
+ 
+/*9.	Display the EmployeeID, LastName, Salary and the Status column with a title HIGH and LOW for those 
+employees whose salary is more than and less than the average salary of all employees. */
+
+SELECT EmployeeID, LastName, Salary,
+CASE
+WHEN Salary > (SELECT AVG(Salary) from Employees) then 'HIGH'
+WHEN Salary < (SELECT AVG(Salary) from Employees) then 'LOW'
+end as STATUS
+FROM [Employees]
+
+/*10.	Show all odd rows from the employees table.  */
+
+Select * from Employees 
+where EmployeeID % 2 != 0
+
+/*11.	Create a copy of the employees table. Name the new table Employees_copy.*/
+
+CREATE TABLE Employees_copy AS
+SELECT *
+FROM Employees
+
+/*12.	Find the 5th highest salary without using limit.*/
+
+select Salary from Employees E1 where 
+     (5 - 1) = (select count(Salary) 
+                from Employees E2 
+                where E2.Salary > E1.Salary ) 
+
+/*13.	Write a SQL query to find employees with the same salary.*/
+
+SELECT * FROM [Employees]
+Where Salary = (SELECT Salary FROM [Employees]
+Group by Salary
+Having Count(*) > 1)
+
+ 
+/*14.	What query would you use to delete all data inside the employees table without 
+deleting the table itself? Do not do this in the w3school database, just write the query here.*/
+
+DELETE FROM Employees
+
+/*15.	Write a query to delete the employees_copy table. */
+
+DROP TABLE employees_copy
